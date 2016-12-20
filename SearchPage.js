@@ -83,6 +83,7 @@ function urlForQueryAndPage(key, value, pageNumber) {
   return 'http://api.nestoria.co.uk/api?' + querystring;
 };
 
+
 class SearchPage extends Component {
   constructor(props) {
     super(props);
@@ -129,6 +130,21 @@ class SearchPage extends Component {
     }
   }
 
+  onLocationPressed() {
+  navigator.geolocation.getCurrentPosition(
+    location => {
+      var search = location.coords.latitude + ',' + location.coords.longitude;
+      this.setState({ searchString: search });
+      var query = urlForQueryAndPage('centre_point', search, 1);
+      this._executeQuery(query);
+    },
+    error => {
+      this.setState({
+        message: 'There was a problem with obtaining your location: ' + error
+      });
+    });
+  }
+
   render() {
     var spinner = this.state.isLoading ?
       ( <ActivityIndicator
@@ -156,7 +172,7 @@ class SearchPage extends Component {
         </TouchableHighlight>
       </View>
       <TouchableHighlight style={styles.button}
-          underlayColor='#99d9f4'>
+          underlayColor='#99d9f4' onPress={this.onLocationPressed.bind(this)}>
         <Text style={styles.buttonText}>Location</Text>
       </TouchableHighlight>
       <Image source={require('./Resources/house.png')} style={styles.image}/>
